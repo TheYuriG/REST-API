@@ -1,0 +1,30 @@
+{
+  "name": "rest-api",
+  "description": "Example of a REST API for a blog",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheYuriG/REST-API.git"
+  },
+  "keywords": [
+    "rest",
+    "api"
+  ],
+  "author": "TheYuriG",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheYuriG/REST-API/issues"
+  },
+  "homepage": "https://github.com/TheYuriG/REST-API#readme"
+}
+
+"dependencies": {
+  "express": "^4.18.1"
+},
+"devDependencies": {
+  "nodemon": "^2.0.19"
+},
