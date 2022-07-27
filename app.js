@@ -10,6 +10,9 @@ const app = express();
 //? Define the port being used
 const restPort = 8080;
 
+//? Parse the JSON data sent in POST and PUT requests
+app.use(parser.json());
+
 //? Use the routes
 app.use('/feed', feedRoutes);
 
