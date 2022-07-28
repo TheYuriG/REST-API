@@ -25,6 +25,12 @@ exports.postNewPost = (req, res, next) => {
 	// TODO Create post in database and then return a response to the user
 	res.status(201).json({
 		message: 'Post created successfully!',
-		post: { id: new Date().toISOString(), title: title, content: content },
+		post: {
+			_id: new Date().toISOString(),
+			title: title,
+			content: content,
+			creator: { name: 'You' },
+			createdAt: new Date(),
+		},
 	});
 };
