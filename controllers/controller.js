@@ -27,12 +27,12 @@ exports.postNewPost = (req, res, next) => {
 	//? Pull the errors (if any) from the post route
 	const errors = validationResult(req);
 
-	//? If there are errors, return an error message response
+	//? If there are errors, throw an error so the express error handler catches it
 	if (!errors.isEmpty()) {
-		return res.status(422).json({
-			message: 'Validation error!',
-			errors: errors.array(),
-		});
+		const error = new Error('Validation error!');
+		error.statusCode = 422;
+		error.array = errors.array();
+		throw error;
 	}
 
 	//? If no errors, proceed with the proper success response and database storage
@@ -56,5 +56,11 @@ exports.postNewPost = (req, res, next) => {
 				post: result,
 			});
 		})
-		.catch((err) => console.log(err));
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
 };

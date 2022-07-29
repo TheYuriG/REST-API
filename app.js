@@ -37,6 +37,13 @@ app.use((req, res, next) => {
 //? Use the routes
 app.use('/feed', feedRoutes);
 
+//? General error handler for any thrown errors inside express
+app.use((error, req, res, next) => {
+	console.log(error);
+	const status = error.statusCode || 500;
+	const message = error.message;
+	res.status(status).json({ message: message });
+});
 mongoose
 	.connect(mongoKey)
 	.then(() => {
