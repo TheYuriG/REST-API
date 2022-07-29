@@ -1,7 +1,7 @@
 //? Import express to create a controller
 const express = require('express');
 //? Import validation
-const { body } = require('express-validator/check');
+const { body } = require('express-validator');
 
 //? Import the posts feed controller
 const feedController = require('../controllers/controller.js');

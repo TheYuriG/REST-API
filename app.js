@@ -1,6 +1,11 @@
-//? Import Express and body-parser as NPM packages
+//? Import NPM packages
 const express = require('express');
 const parser = require('body-parser');
+const mongoose = require('mongoose');
+
+//! Import the API key for the MongoDB storage.
+//! You need to create your own key if you are cloning this project
+const { mongoKey } = require('./util/secrets/keys.js');
 
 //? Import the routes
 const feedRoutes = require('./routes/routes');
@@ -27,5 +32,14 @@ app.use((req, res, next) => {
 //? Use the routes
 app.use('/feed', feedRoutes);
 
-//? Start the server
-app.listen(restPort);
+mongoose
+	.connect(mongoKey)
+	.then(() => {
+		//? Start the server
+		app.listen(restPort);
+		console.log('Connected to MongoDB and server is online!');
+	})
+	.catch(() => {
+		console.log('Error connecting to MongoDB');
+		throw Error();
+	});

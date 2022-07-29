@@ -1,5 +1,5 @@
 //? Import validation to check if the routes are giving data errors
-const { validationResult } = require('express-validator/check');
+const { validationResult } = require('express-validator');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
