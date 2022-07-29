@@ -1,5 +1,7 @@
 //? Import express to create a controller
 const express = require('express');
+//? Import validation
+const { body } = require('express-validator/check');
 
 //? Import the posts feed controller
 const feedController = require('../controllers/controller.js');
@@ -11,7 +13,11 @@ const router = express.Router();
 router.get('/posts', feedController.getPosts);
 
 //? Create a new post and save it in the server
-router.post('/post', feedController.postNewPost);
+router.post(
+	'/post',
+	[body('title').trim().isLength({ min: 5 }), body('content').trim().isLength({ min: 5 })],
+	feedController.postNewPost
+);
 
 //? Export back to app.js
 module.exports = router;

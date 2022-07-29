@@ -1,3 +1,6 @@
+//? Import validation to check if the routes are giving data errors
+const { validationResult } = require('express-validator/check');
+
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
 	//? Set the response status as 200 and return posts data
@@ -19,7 +22,18 @@ exports.getPosts = (req, res, next) => {
 
 //? Handles POST requests to create new posts at website/feed/post
 exports.postNewPost = (req, res, next) => {
-	// TODO Validate content before storing data
+	//? Pull the errors (if any) from the post route
+	const errors = validationResult(req);
+
+	//? If there are errors, return an error message response
+	if (!errors.isEmpty()) {
+		return res.status(422).json({
+			message: 'Validation error!',
+			errors: errors.array(),
+		});
+	}
+
+	//? If no errors, proceed with the proper success response and database storage
 	const title = req.body.title;
 	const content = req.body.content;
 	// TODO Create post in database and then return a response to the user
