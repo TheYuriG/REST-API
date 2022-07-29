@@ -3,6 +3,9 @@ const express = require('express');
 const parser = require('body-parser');
 const mongoose = require('mongoose');
 
+//? Import path node module to serve images from "/images" to the front end
+const path = require('path');
+
 //! Import the API key for the MongoDB storage.
 //! You need to create your own key if you are cloning this project
 const { mongoKey } = require('./util/secrets/keys.js');
@@ -17,6 +20,8 @@ const restPort = 8080;
 
 //? Parse the JSON data sent in POST and PUT requests
 app.use(parser.json());
+//? Serves images to the frontend
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //? Handles CORS issues
 app.use((req, res, next) => {
