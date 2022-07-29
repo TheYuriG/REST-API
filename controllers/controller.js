@@ -1,5 +1,7 @@
 //? Import validation to check if the routes are giving data errors
 const { validationResult } = require('express-validator');
+//? Import our MongoDB posts Schema
+const Post = require('../models/post.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
@@ -36,15 +38,23 @@ exports.postNewPost = (req, res, next) => {
 	//? If no errors, proceed with the proper success response and database storage
 	const title = req.body.title;
 	const content = req.body.content;
-	// TODO Create post in database and then return a response to the user
-	res.status(201).json({
-		message: 'Post created successfully!',
-		post: {
-			_id: new Date().toISOString(),
-			title: title,
-			content: content,
-			creator: { name: 'You' },
-			createdAt: new Date(),
-		},
+
+	//? Create a new post in the database following our Schema
+	const post = new Post({
+		title: title,
+		content: content,
+		imageUrl: 'images/farCry.jpg',
+		creator: { name: 'You' },
 	});
+
+	//? Save this post in the database
+	post.save()
+		.then((result) => {
+			console.log(result);
+			res.status(201).json({
+				message: 'Post created successfully!',
+				post: result,
+			});
+		})
+		.catch((err) => console.log(err));
 };
