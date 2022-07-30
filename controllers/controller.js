@@ -5,6 +5,8 @@ const Post = require('../models/post.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
+	//? Access the database to pull all posts
+	//! Lacking pagination for now
 	Post.find()
 		.then((posts) => {
 			//? Set the response status as 200 and return posts data
@@ -43,7 +45,7 @@ exports.postNewPost = (req, res, next) => {
 	const post = new Post({
 		title: title,
 		content: content,
-		imageUrl: 'images/farCry.jpg',
+		imageUrl: '/images/farCry.jpg',
 		creator: { name: 'You' },
 	});
 
@@ -53,6 +55,35 @@ exports.postNewPost = (req, res, next) => {
 			res.status(201).json({
 				message: 'Post created successfully!',
 				post: result,
+			});
+		})
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
+};
+
+exports.getSinglePostDetail = (req, res, next) => {
+	//? Fetch the post ID from the URL, it will be after "/post/"
+	const postId = req.params.postId;
+
+	//? Look up the database if there is an post with this same ID extracted
+	Post.findById(postId)
+		.then((post) => {
+			//? If nothing was found, throw an error for the following catch block
+			if (!post) {
+				const error = new Error('Could not find post');
+				error.statusCode = 404;
+				throw error;
+			}
+
+			//? If something was found, return a success response
+			res.status(200).json({
+				message: 'Post Fetched',
+				post: post,
 			});
 		})
 		.catch((err) => {
