@@ -5,21 +5,21 @@ const Post = require('../models/post.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
-	//? Set the response status as 200 and return posts data
-	res.status(200).json({
-		posts: [
-			{
-				_id: '1',
-				title: 'First Post',
-				content: 'This is the content body for the first post',
-				imageUrl: 'images/farCry.jpg',
-				creator: {
-					name: 'You',
-				},
-				createdAt: new Date(),
-			},
-		],
-	});
+	Post.find()
+		.then((posts) => {
+			//? Set the response status as 200 and return posts data
+			res.status(200).json({
+				message: 'All posts fetched',
+				posts: posts,
+			});
+		})
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
 };
 
 //? Handles POST requests to create new posts at website/feed/post
@@ -50,7 +50,6 @@ exports.postNewPost = (req, res, next) => {
 	//? Save this post in the database
 	post.save()
 		.then((result) => {
-			console.log(result);
 			res.status(201).json({
 				message: 'Post created successfully!',
 				post: result,
