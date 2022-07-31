@@ -2,6 +2,9 @@
 const express = require('express');
 const parser = require('body-parser');
 const mongoose = require('mongoose');
+
+//? Import all the multer parsing logic from separate file to avoid
+//? cluttering main file for no reason. This will handle image uploads
 const { multerParser } = require('./util/multer-filter.js');
 
 //? Import path node module to serve images from "/images" to the front end

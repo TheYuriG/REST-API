@@ -1,4 +1,7 @@
+//? Import multer to process uploaded images
 const multer = require('multer');
+//? Import uuid to process filepaths in Windows
+//! Mac/Linux users can name the files with the upload timestamps instead
 const { v4: uuidv4 } = require('uuid');
 
 //? Handles how uploaded images would be stored and named on the server after being filtered by multer
@@ -29,6 +32,8 @@ const multerFileFilter = (req, file, callbackFileFilter) => {
 	}
 };
 
+//? Export the complete function back to 'app.js' so it can be used clean
+//? to easily process sent images to the backend
 module.exports.multerParser = multer({
 	storage: multerFileStorage,
 	fileFilter: multerFileFilter,
