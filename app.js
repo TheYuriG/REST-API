@@ -2,6 +2,7 @@
 const express = require('express');
 const parser = require('body-parser');
 const mongoose = require('mongoose');
+const { multerParser } = require('./util/multer-filter.js');
 
 //? Import path node module to serve images from "/images" to the front end
 const path = require('path');
@@ -20,6 +21,9 @@ const restPort = 8080;
 
 //? Parse the JSON data sent in POST and PUT requests
 app.use(parser.json());
+//? Parse and store files using multer
+app.use(multerParser);
+
 //? Serves images to the frontend
 app.use('/images', express.static(path.join(__dirname, 'images')));
 

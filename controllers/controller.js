@@ -37,15 +37,24 @@ exports.postNewPost = (req, res, next) => {
 		throw error;
 	}
 
+	//? Check if a proper image was uploaded
+	if (!req.file) {
+		//? Throw an error if no proper image was sent
+		const error = new Error('No image provided!');
+		error.statusCode = 422;
+		throw error;
+	}
+
 	//? If no errors, proceed with the proper success response and database storage
 	const title = req.body.title;
 	const content = req.body.content;
+	const imageUrl = req.file.path.replace('\\', '/');
 
 	//? Create a new post in the database following our Schema
 	const post = new Post({
 		title: title,
 		content: content,
-		imageUrl: '/images/farCry.jpg',
+		imageUrl: imageUrl,
 		creator: { name: 'You' },
 	});
 
@@ -94,3 +103,7 @@ exports.getSinglePostDetail = (req, res, next) => {
 			next(err);
 		});
 };
+
+// exports.updatePost = (req, res, next) => {
+//     imageUrl = req.file.path.replace("\\","/");
+// }

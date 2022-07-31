@@ -19,7 +19,7 @@ router.post(
 	feedController.postNewPost
 );
 
-//? Post controller for single posts (expanded modal)
+//? Post controller for the page that displays information about a single post
 router.get('/post/:postId', feedController.getSinglePostDetail);
 
 //? Export back to app.js
