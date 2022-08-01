@@ -1,6 +1,6 @@
 # REST-API
 
-Rest API to handle backend for the Twitter-like feed. To properly use this, you must also run the frontend repository so they can talk to each other, as they are independent on runtime, but needed to be functional.
+Rest API to handle backend for the Twitter-like feed. To properly use this, you must also run the [frontend repository](https://github.com/TheYuriG/REST-frontend) so they can talk to each other, as they are independent on runtime, but needed to be functional.
 
 ## Before starting
 
