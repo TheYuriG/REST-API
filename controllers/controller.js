@@ -182,3 +182,42 @@ exports.updatePost = (req, res, next) => {
 			next(err);
 		});
 };
+
+//? Delete the post, if the user has delete rights to it
+exports.deletePost = (req, res, next) => {
+	//? Extract the post ID from the URL
+	const postId = req.params.postId;
+	//? Temp store the imagePath so that we can delete the image only
+	//? after the post was deleted in the database
+	let imagePath;
+
+	//? Look up if this post actually exists and if the person has delete permissions for it
+	Post.findById(postId)
+		.then((post) => {
+			//? If no post was found, throw error
+			if (!post) {
+				const error = new Error('Could not find post to delete');
+				error.statusCode = 404;
+				throw error;
+			}
+			//? Update the temp store image variable to delete the post after
+			//? the findByIdAndDelete method (below) completes
+			imagePath = post.imageUrl;
+
+			//? Searches and destroys this post on the database
+			return Post.findByIdAndDelete(postId);
+		})
+		.then((result) => {
+			//? Finally delete the image from the server
+			deleteImage(imagePath);
+			//? Return a success message to the user
+			res.status(200).json({ message: 'Successful post deletion!' });
+		})
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
+};
