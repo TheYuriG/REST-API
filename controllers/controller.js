@@ -7,14 +7,33 @@ const { deleteImage } = require('../util/delete-image.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
-	//? Access the database to pull all posts
-	//! Lacking pagination for now
+	//? Pull the page number to work with proper pagination
+	const currentPage = req.query.page || 1;
+	//? Sets the limit of items to be displayed per page
+	const postLimitPerPage = 10;
+	//? Soft store the total number of items to be later passed to the
+	//? front end so it can know when to render the "Previous" and "Next" button
+	let totalPosts;
+
+	//? Query the database for the number of items total
 	Post.find()
+		.countDocuments()
+		.then((count) => {
+			//? Update the totalPosts variable to then pass that number to the frontend
+			totalPosts = count;
+
+			//? Access the database to pull all posts
+			return Post.find()
+				.skip((currentPage - 1) * postLimitPerPage)
+				.limit(postLimitPerPage);
+		})
 		.then((posts) => {
-			//? Set the response status as 200 and return posts data
+			//? Set the response status as 200 and return posts data and
+			//? the total number of posts so the frontend can properly paginate
 			res.status(200).json({
-				message: 'All posts fetched',
+				message: 'Posts fetched',
 				posts: posts,
+				totalItems: totalPosts,
 			});
 		})
 		.catch((err) => {
