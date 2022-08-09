@@ -16,6 +16,7 @@ const { mongoKey } = require('./util/secrets/keys.js');
 
 //? Import the routes
 const feedRoutes = require('./routes/routes');
+const authenticationRoutes = require('./routes/auth');
 
 //? Initialize the app
 const app = express();
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 
 //? Use the routes
 app.use('/feed', feedRoutes);
+app.use('/auth', authenticationRoutes);
 
 //? General error handler for any thrown errors inside express
 app.use((error, req, res, next) => {
