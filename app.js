@@ -49,10 +49,15 @@ app.use('/auth', authenticationRoutes);
 //? General error handler for any thrown errors inside express
 app.use((error, req, res, next) => {
 	console.log(error);
+	//? Pull the status code from any catch blocks. If no status code, set as 500
 	const status = error.statusCode || 500;
+	//? Pull what message was thrown in the error
 	const message = error.message;
 	res.status(status).json({ message: message });
 });
+
+//? Use mongoose to start the models imported from './models' and
+//? connect to the database using the API key saved in './util/secrets'
 mongoose
 	.connect(mongoKey)
 	.then(() => {
