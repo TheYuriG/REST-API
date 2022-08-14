@@ -53,7 +53,10 @@ app.use((error, req, res, next) => {
 	const status = error.statusCode || 500;
 	//? Pull what message was thrown in the error
 	const message = error.message;
-	res.status(status).json({ message: message });
+	//? Pull any validation errors that might have ocurred
+	const errors = error.allErrors;
+	//? Send back a response considering the status code, message error and validation errors
+	res.status(status).json({ message: message, data: errors });
 });
 
 //? Use mongoose to start the models imported from './models' and
