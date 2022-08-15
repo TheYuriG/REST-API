@@ -1,9 +1,11 @@
 //? Require NPM packages
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken');
 //? Import User model to deal with authentication
 const User = require('../models/user.js');
+//? Import the JWT secret string
+const { JWTsecret } = require('../util/secrets/keys');
 
 //? Handles PUT requests to '/auth/register'
 exports.register = (req, res, next) => {
@@ -81,12 +83,22 @@ exports.authentication = (req, res, next) => {
 			}
 
 			//? If the passwords match, the IF block above gets skipped and
-			//? we authenticate the user
-			//! Install JWT and return that to the client to store
-			// res.status(201).json({
-			// 	message: 'User created!',
-			// 	userId: result._id,
-			// });
+			//? we authenticate the user by creating their JSON Web Token
+			const token = jwt.sign(
+				//? Data to encrypt
+				{ email: loadedUser.email, userId: loadedUser._id.toString() },
+				//? Secret string to increase security
+				//! Needs to be manually created if importing this project
+				JWTsecret,
+				//? Set expiry date. The frontend will logoff in 1h by default
+				{ expiresIn: '1h' }
+			);
+
+			//? Return a success response and attach the JWT created above
+			res.status(200).json({
+				token: token,
+				userId: loadedUser._id.toString(),
+			});
 		})
 		.catch((err) => {
 			//? Forward the error to the express error handler
