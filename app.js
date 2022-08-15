@@ -15,7 +15,7 @@ const path = require('path');
 const { mongoKey } = require('./util/secrets/keys.js');
 
 //? Import the routes
-const feedRoutes = require('./routes/routes');
+const feedRoutes = require('./routes/post');
 const authenticationRoutes = require('./routes/auth');
 
 //? Initialize the app
