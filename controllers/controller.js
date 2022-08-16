@@ -2,6 +2,7 @@
 const { validationResult } = require('express-validator');
 //? Import our MongoDB posts Schema
 const Post = require('../models/post.js');
+const User = require('../models/user.js');
 //? Import the file deletion helper function
 const { deleteImage } = require('../util/delete-image.js');
 
@@ -70,21 +71,32 @@ exports.postNewPost = (req, res, next) => {
 	const title = req.body.title;
 	const content = req.body.content;
 	const imageUrl = req.file.path.replace('\\', '/');
+	let creator;
 
 	//? Create a new post in the database following our Schema
 	const post = new Post({
 		title: title,
 		content: content,
 		imageUrl: imageUrl,
-		creator: { name: 'You' },
+		creator: req.userId, //? We store the logged ID in the request using the 'is-auth.js' middleware
 	});
 
 	//? Save this post in the database
 	post.save()
-		.then((result) => {
+		//? After saving the post, fetch the user
+		.then(() => User.findById(req.userId))
+		//? Once you have the user, add this post to the user's posts
+		.then((user) => {
+			creator = user;
+			user.posts.push(post);
+			return user.save();
+		})
+		//? After both operations are successful, return a success response to the client
+		.then(() => {
 			res.status(201).json({
 				message: 'Post created successfully!',
-				post: result,
+				post: post,
+				creator: { _id: creator._id, name: creator.name },
 			});
 		})
 		.catch((err) => {
