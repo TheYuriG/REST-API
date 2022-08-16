@@ -23,7 +23,8 @@ const postSchema = new Schema(
 		},
 		//? Post owner
 		creator: {
-			type: Object,
+			type: Schema.Types.ObjectId,
+			ref: 'User',
 			required: true,
 		},
 	},
