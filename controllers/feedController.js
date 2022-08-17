@@ -21,12 +21,16 @@ exports.getStatus = (req, res, next) => {
 		});
 };
 
+//? Deals with attempts to update the user status
 exports.updateStatus = (req, res, next) => {
-	console.log(req.body.status);
 	User.findById(req.userId)
 		.then((user) => {
 			const updatedUser = user;
 			updatedUser.status = req.body.status;
+			return updatedUser.save();
+		})
+		.then(() => {
+			res.status(200).json({ message: 'Status updated successfully!' });
 		})
 		.catch((err) => {
 			//? Forward the error to the express error handler

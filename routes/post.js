@@ -14,6 +14,9 @@ const router = express.Router();
 //? Get user status
 router.get('/status', isAuth, feedController.getStatus);
 
+//? Update user status
+router.post('/status', isAuth, feedController.updateStatus);
+
 //? Load posts stored in the server
 router.get('/posts', isAuth, feedController.getPosts);
 
