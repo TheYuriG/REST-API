@@ -6,6 +6,37 @@ const User = require('../models/user.js');
 //? Import the file deletion helper function
 const { deleteImage } = require('../util/delete-image.js');
 
+//? Handles status fetch requests
+exports.getStatus = (req, res, next) => {
+	User.findById(req.userId)
+		.then((user) => {
+			res.json(JSON.stringify(user));
+		})
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
+};
+
+exports.updateStatus = (req, res, next) => {
+	console.log(req.body.status);
+	User.findById(req.userId)
+		.then((user) => {
+			const updatedUser = user;
+			updatedUser.status = req.body.status;
+		})
+		.catch((err) => {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		});
+};
+
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = (req, res, next) => {
 	//? Pull the page number to work with proper pagination

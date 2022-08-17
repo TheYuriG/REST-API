@@ -6,7 +6,7 @@ const { body } = require('express-validator');
 const isAuth = require('../util/is-auth.js');
 
 //? Import the posts feed controller
-const feedController = require('../controllers/controller.js');
+const feedController = require('../controllers/feedController.js');
 
 //? Create a router for the posts
 const router = express.Router();
