@@ -2,6 +2,8 @@
 const express = require('express');
 //? Import validation
 const { body } = require('express-validator');
+//? Import authentication middleware to handle validation of JWT tokens
+const isAuth = require('../util/is-auth.js');
 
 //? Import the authentication controller
 const authController = require('../controllers/authenticationController.js');
@@ -37,6 +39,12 @@ router.post(
 	],
 	authController.authentication
 );
+
+//? Get user status
+router.get('/status', isAuth, authController.getStatus);
+
+//? Update user status
+router.post('/status', isAuth, authController.updateStatus);
 
 //? Export back to app.js
 module.exports = router;
