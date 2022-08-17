@@ -255,8 +255,20 @@ exports.deletePost = (req, res, next) => {
 			//? Searches and destroys this post on the database
 			return Post.findByIdAndDelete(postId);
 		})
+		.then(() => {
+			//? Once the post was destroyed, we need to remove this post reference
+			//? from the user's posts. First we fetch the user
+			return User.findById(req.userId);
+		})
+		.then((user) => {
+			//? Then we remove the post reference from the 'posts' array inside
+			//? the user entry on the database
+			user.posts.pull(postId);
+			//? then we save this user without the post reference
+			return user.save();
+		})
 		.then((result) => {
-			//? Finally delete the image from the server
+			//? Finally delete the image from the server storage
 			deleteImage(imagePath);
 			//? Return a success message to the user
 			res.status(200).json({ message: 'Successful post deletion!' });
