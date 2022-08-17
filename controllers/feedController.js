@@ -24,6 +24,7 @@ exports.getPosts = async (req, res, next) => {
 
 		//? Access the database to pull all posts
 		const posts = await Post.find()
+			.populate('creator')
 			.skip((currentPage - 1) * postLimitPerPage)
 			.limit(postLimitPerPage);
 		//? Set the response status as 200 and return posts data and
@@ -111,7 +112,7 @@ exports.getSinglePostDetail = async (req, res, next) => {
 
 	try {
 		//? Look up the database if there is an post with this same ID extracted
-		const post = await Post.findById(postId);
+		const post = await Post.findById(postId).populate('creator');
 		//? If nothing was found, throw an error for the following catch block
 		if (!post) {
 			const error = new Error('Could not find post');
