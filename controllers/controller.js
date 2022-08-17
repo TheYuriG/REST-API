@@ -182,6 +182,14 @@ exports.updatePost = (req, res, next) => {
 				throw error;
 			}
 
+			//? Check if the person trying to edit the post is the
+			//? same person who created it and fail the request if isn't
+			if (post.creator.toString() !== req.userId) {
+				const error = new Error('Not authorized!');
+				error.statusCode = 403;
+				throw error;
+			}
+
 			//? Update the database post with the newly provided data
 			let updatedPost = post;
 			post.title = title;
@@ -231,6 +239,15 @@ exports.deletePost = (req, res, next) => {
 				error.statusCode = 404;
 				throw error;
 			}
+
+			//? Check if the person trying to delete the post is the
+			//? same person who created it and fail the request if isn't
+			if (post.creator.toString() !== req.userId) {
+				const error = new Error('Not authorized!');
+				error.statusCode = 403;
+				throw error;
+			}
+
 			//? Update the temp store image variable to delete the post after
 			//? the findByIdAndDelete method (below) completes
 			imagePath = post.imageUrl;
