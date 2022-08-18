@@ -5,6 +5,8 @@ const Post = require('../models/post.js');
 const User = require('../models/user.js');
 //? Import the file deletion helper function
 const { deleteImage } = require('../util/delete-image.js');
+//? Import Socket.IO websocket controller
+const io = require('../util/socket.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = async (req, res, next) => {
@@ -84,6 +86,9 @@ exports.postNewPost = async (req, res, next) => {
 		creator = user;
 		user.posts.push(post);
 		await user.save();
+
+		//? Sends event to websocket so the clients will update their UI with the newly fetched data
+		io.getIO().emit('posts', { action: 'create', post: post });
 
 		//? After both operations are successful, return a success response to the client
 		res.status(201).json({
