@@ -65,8 +65,10 @@ mongoose
 	.connect(mongoKey)
 	.then(() => {
 		//? Start the server
-		app.listen(restPort);
-		console.log('Connected to MongoDB and server is online!');
+		const server = app.listen(restPort);
+		const io = require('./util/socket.js').init(server);
+		io.on('connection', (socket) => {});
+		console.log('Connected to MongoDB! Socket.IO and server are online!');
 	})
 	.catch(() => {
 		console.log('Error connecting to MongoDB');
