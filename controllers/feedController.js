@@ -12,15 +12,10 @@ exports.getPosts = async (req, res, next) => {
 	const currentPage = req.query.page || 1;
 	//? Sets the limit of items to be displayed per page
 	const postLimitPerPage = 10;
-	//? Soft store the total number of items to be later passed to the
-	//? front end so it can know when to render the "Previous" and "Next" button
-	let totalPosts;
 
 	try {
 		//? Query the database for the number of items total
-		const count = await Post.find().countDocuments();
-		//? Update the totalPosts variable to then pass that number to the frontend
-		totalPosts = count;
+		const totalPosts = await Post.find().countDocuments();
 
 		//? Access the database to pull all posts
 		const posts = await Post.find()
@@ -85,7 +80,7 @@ exports.postNewPost = async (req, res, next) => {
 		//? After saving the post, fetch the user
 		const user = await User.findById(req.userId);
 
-		//? Once you have the user, add this post to the user's posts
+		//? Once you have the user, add this post to the user's posts on the database
 		creator = user;
 		user.posts.push(post);
 		await user.save();
