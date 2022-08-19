@@ -66,8 +66,12 @@ mongoose
 	.then(() => {
 		//? Start the server
 		const server = app.listen(restPort);
+		//? Initialize the websocket with Socket.IO and pass the express server
+		//? into it so it can be used
 		const io = require('./util/socket.js').init(server);
-		io.on('connection', (socket) => {});
+		//! This is meant to inform us on every client connection to the
+		//! websocket. Commented out because it's only useful for debugging
+		// io.on('connection', (socket) => {});
 		console.log('Connected to MongoDB! Socket.IO and server are online!');
 	})
 	.catch(() => {
