@@ -65,7 +65,6 @@ exports.postNewPost = async (req, res, next) => {
 	const title = req.body.title;
 	const content = req.body.content;
 	const imageUrl = req.file.path.replace('\\', '/');
-	let creator;
 
 	//? Create a new post in the database following our Schema
 	const post = new Post({
@@ -83,18 +82,20 @@ exports.postNewPost = async (req, res, next) => {
 		const user = await User.findById(req.userId);
 
 		//? Once you have the user, add this post to the user's posts on the database
-		creator = user;
 		user.posts.push(post);
 		await user.save();
 
 		//? Sends event to websocket so the clients will update their UI with the newly fetched data
-		io.getIO().emit('posts', { action: 'create', post: post });
+		io.getIO().emit('posts', {
+			action: 'create',
+			post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
+		});
 
 		//? After both operations are successful, return a success response to the client
 		res.status(201).json({
 			message: 'Post created successfully!',
 			post: post,
-			creator: { _id: creator._id, name: creator.name },
+			creator: { _id: user._id, name: user.name },
 		});
 	} catch (err) {
 		//? Forward the error to the express error handler
