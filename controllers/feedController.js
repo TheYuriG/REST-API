@@ -22,6 +22,7 @@ exports.getPosts = async (req, res, next) => {
 		//? Access the database to pull all posts
 		const posts = await Post.find()
 			.populate('creator')
+			.sort({ createdAt: -1 })
 			.skip((currentPage - 1) * postLimitPerPage)
 			.limit(postLimitPerPage);
 		//? Set the response status as 200 and return posts data and
