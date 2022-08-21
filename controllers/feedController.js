@@ -170,7 +170,7 @@ exports.updatePost = async (req, res, next) => {
 
 	try {
 		//? Look up on the database for the post being searched
-		const post = await Post.findById(postId);
+		const post = await Post.findById(postId).populate('creator');
 		//! This will not find the post if the post was deleted between
 		//! the page load and the "Edit" click
 		if (!post) {
@@ -182,14 +182,13 @@ exports.updatePost = async (req, res, next) => {
 
 		//? Check if the person trying to edit the post is the
 		//? same person who created it and fail the request if isn't
-		if (post.creator.toString() !== req.userId) {
+		if (post.creator._id.toString() !== req.userId) {
 			const error = new Error('Not authorized!');
 			error.statusCode = 403;
 			throw error;
 		}
 
 		//? Update the database post with the newly provided data
-		let updatedPost = post;
 		post.title = title;
 		post.content = content;
 
@@ -203,6 +202,14 @@ exports.updatePost = async (req, res, next) => {
 
 		//? Save the updated post on the database again
 		const savedPost = await post.save();
+
+		//? Sends event to websocket so the clients will update their UI with
+		//? the recently updated post
+		io.getIO().emit('posts', {
+			action: 'update',
+			post: savedPost,
+		});
+
 		//? Return a success message to the client
 		res.status(200).json({
 			message: 'Post successfully updated on the database!',
