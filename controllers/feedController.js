@@ -257,6 +257,10 @@ exports.deletePost = async (req, res, next) => {
 		user.posts.pull(postId);
 		//? then we save this user without the post reference
 		await user.save();
+
+		//? Emit an event on the websocket
+		io.getIO().emit('posts', { action: 'delete', post: postId });
+
 		//? Finally delete the image from the server storage
 		deleteImage(post.imageUrl);
 		//? Return a success message to the user
