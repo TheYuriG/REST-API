@@ -5,8 +5,6 @@ const Post = require('../models/post.js');
 const User = require('../models/user.js');
 //? Import the file deletion helper function
 const { deleteImage } = require('../util/delete-image.js');
-//? Import Socket.IO websocket controller
-const io = require('../util/socket.js');
 
 //? Handles GET requests to website/feed/posts and returns JSON data
 exports.getPosts = async (req, res, next) => {
