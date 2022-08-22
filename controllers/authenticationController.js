@@ -1,6 +1,5 @@
 //? Require NPM packages
 const { validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 //? Import User model to deal with authentication
 const User = require('../models/user.js');
