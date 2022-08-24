@@ -21,7 +21,7 @@ so instead we pull them as Strings.
 Users Schema, same as mongoose. 'posts' requires an array of Post datatype,
 which we defined previously.
 """
-    type: User {
+    type User {
         _id: ID!
         name: String!
         email: String!
