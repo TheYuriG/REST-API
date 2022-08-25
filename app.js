@@ -4,9 +4,9 @@ const parser = require('body-parser');
 const mongoose = require('mongoose');
 
 //? Import GraphQL-related files
-const { graphqlHttp } = require('express-graphql');
+const { graphqlHTTP } = require('express-graphql');
 const graphqlSchema = require('./graphql/schema.js');
-const graphqlResolver = require('./graphql/resolver.js');
+const graphqlResolver = require('./graphql/resolvers.js');
 
 //? Import all the multer parsing logic from separate file to avoid
 //? cluttering main file for no reason. This will handle image uploads
@@ -43,6 +43,22 @@ app.use((req, res, next) => {
 	next();
 });
 
+//? Handling all GraphQL requests in one place
+app.use(
+	//? To which route requests should be read as GraphQL requests
+	'/graphql',
+	//? Use GraphQL middleware
+	graphqlHTTP({
+		//? Where the data schema is defined
+		schema: graphqlSchema,
+		//? Where is the resolver for queries
+		rootValue: graphqlResolver,
+		//? Enable access to server + /graphiql for visual
+		//? representation of being sent and received
+		graphiql: true,
+	})
+);
+
 //? General error handler for any thrown errors inside express
 app.use((error, req, res, next) => {
 	console.log(error);
@@ -55,9 +71,6 @@ app.use((error, req, res, next) => {
 	//? Send back a response considering the status code, message error and validation errors
 	res.status(status).json({ message: message, data: errors });
 });
-
-//? Handling all GraphQL requests in one place
-app.use('/graphql', graphqlHttp({ schema: graphqlSchema, rootValue: graphqlResolver }));
 
 //? Use mongoose to start the models imported from './models' and
 //? connect to the database using the API key saved in './util/secrets'
