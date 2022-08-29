@@ -1,5 +1,6 @@
-//? Import encryption NPM package
+//? Import encryption and validation NPM packages
 const bcrypt = require('bcryptjs');
+const validator = require('validator');
 
 //? Import data models
 const User = require('../models/user.js');
@@ -10,6 +11,23 @@ module.exports = {
 	//? Function to create an user on the database when user accesses
 	//? '/signup' and sends a valid form
 	createUser: async function ({ userInput: { name, password, email } }, req) {
+		//? Array of validation errors
+		const validationErrors = [];
+		//? Validate user data before attempting any database access
+		if (!validator.isEmail(email)) {
+			validationErrors.push({ message: 'E-Mail is invalid.' });
+		}
+		if (validator.isEmpty(password) || !validator.isLength(password, { min: 5 })) {
+			validationErrors.push({ message: 'Please provide a valid password.' });
+		}
+		if (validator.isEmpty(name) || !validator.isLength(name, { min: 5 })) {
+			validationErrors.push({ message: 'Please provide a valid name.' });
+		}
+		if (validationErrors.length > 0) {
+			const invalidInputError = new Error('Invalid input.');
+			throw invalidInputError;
+		}
+
 		//? First we check if an user already exists with this email
 		const existingUser = await User.findOne({ email: email });
 		//? If we found an user, throw an error
