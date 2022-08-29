@@ -49,8 +49,16 @@ object with 3 required properties and returns an User upon completion.
     }
 
 """
+Example query to be used with Graphiql. Doesn't return anything useful
+"""
+type RootQuery {
+    hello: String
+}
+
+"""
 Definition of our queries and mutations
 """
     schema {
+        query: RootQuery
         mutation: Register
     }`);
