@@ -23,8 +23,16 @@ module.exports = {
 		if (validator.isEmpty(name) || !validator.isLength(name, { min: 5 })) {
 			validationErrors.push({ message: 'Please provide a valid name.' });
 		}
+
+		//? If we have any validation errors, throw the error
 		if (validationErrors.length > 0) {
+			//? Name the error
 			const invalidInputError = new Error('Invalid input.');
+			//? Attach all validation errors to the thrown error
+			validationErrors.data = validationErrors;
+			//? Change the status code to Unprocessable Entity
+			validationErrors.code = 422;
+			//? and finally throw it
 			throw invalidInputError;
 		}
 

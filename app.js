@@ -56,6 +56,21 @@ app.use(
 		//? Enable access to server + /graphiql for visual
 		//? representation of being sent and received
 		graphiql: true,
+		//? GraphQL error handling function
+		formatError(thrownError) {
+			//? Checks if the error has an original error that is
+			//? automatically detected by GraphQL, created by us or
+			//? a third party package we could be using
+			if (!thrownError.originalError) {
+				return thrownError;
+			}
+			//? If there isn't, we assume this is a controlled, manually
+			//? crafted error. Extract its data and return to the frontend
+			const data = thrownError.originalError?.data;
+			const message = thrownError.message || 'An error occurred';
+			const statusCode = thrownError.code || 500;
+			return { message: message, status: statusCode, data: data };
+		},
 	})
 );
 
