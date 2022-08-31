@@ -40,6 +40,11 @@ app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
 	//? Configure the server to accept headers for content and for authentication
 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+	//? Send a success message to every OPTIONS HTTP request. This is specially
+	//? important to deal with GraphQL requests
+	if (req.method === 'OPTIONS') {
+		return res.sendStatus(200);
+	}
 	next();
 });
 
