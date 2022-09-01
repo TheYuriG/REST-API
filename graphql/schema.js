@@ -31,6 +31,14 @@ which we defined previously.
     }
 
 """
+Information that is returned once a successful login attempt completes.
+"""
+type AuthData {
+    token String!
+    userId: String!
+}
+
+"""
 Mutation Schema to create an user in the database, the basic registering.
 This data will be sent to us by the front-end and all 3 fields are required.
 """
@@ -49,10 +57,10 @@ object with 3 required properties and returns an User upon completion.
     }
 
 """
-Example query to be used with Graphiql. Doesn't return anything useful
+Login query, requesting validation of email and password
 """
 type RootQuery {
-    hello: String
+    authenticate(email: String!, password: String!): AuthData!
 }
 
 """
