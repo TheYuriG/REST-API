@@ -49,11 +49,22 @@ This data will be sent to us by the front-end and all 3 fields are required.
     }
 
 """
-The mutation we define to create a new user in the database. It requires an
-object with 3 required properties and returns an User upon completion.
+Mutation Schema for creating a new post.
+This data will be sent to us by the front-end and all 3 fields are required.
+"""
+    input postData {
+        title: String!
+        content: String!
+        imageUrl: String!
+    }
+
+"""
+Defined mutations: "createUser" for registering a new user and "createPost"
+to store a new post in the database
 """
     type Register {
         createUser(userInput: registerData): User!
+        createPost(postInput: postData): Post!
     }
 
 """
