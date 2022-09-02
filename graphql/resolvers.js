@@ -173,12 +173,6 @@ module.exports = {
 		user.posts.push(post);
 		await user.save();
 
-		//? Sends event to websocket so the clients will update their UI with the newly fetched data
-		io.getIO().emit('posts', {
-			action: 'create',
-			post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
-		});
-
 		return {
 			...savedPost._doc,
 			_id: savedPost._id.toString(),
