@@ -106,6 +106,14 @@ module.exports = {
 		};
 	},
 	createPost: async function ({ postInput: { title, content } }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
 		//? Array of validation errors
 		const validationErrors = [];
 		//? Validate post data before attempting any database access
@@ -123,7 +131,7 @@ module.exports = {
 			//? Attach all validation errors to the thrown error
 			validationErrors.data = validationErrors;
 			//? Change the status code to Unprocessable Entity
-			validationErrors.code = 401;
+			validationErrors.code = 422;
 			//? and finally throw it
 			throw invalidInputError;
 		}
@@ -137,16 +145,39 @@ module.exports = {
 		// }
 		// const imageUrl = req.file.path.replace('\\', '/');
 
+		// //? After validating the post information, fetch the user
+		const user = await User.findById(req.userId);
+
+		//? Check if we found a valid user and, if not, throw an error
+		if (!user) {
+			//? Name the error
+			const invalidUserError = new Error('Invalid user.');
+			//? Change the status code to Unauthenticated
+			invalidUserError.code = 401;
+			//? and finally throw it
+			throw invalidUserError;
+		}
+
 		//? Create a new post in the database following our Schema
 		const post = new Post({
 			title: title,
 			content: content,
 			imageUrl: imageUrl,
-			creator: req.userId, //? We store the logged ID in the request using the 'is-auth.js' middleware
+			creator: user._id, //? We store the logged ID in the request using the 'is-auth.js' middleware
 		});
 
 		//? Save this post in the database
 		const savedPost = await post.save();
+
+		//? Once you have the user, add this post to the user's posts on the database
+		user.posts.push(post);
+		await user.save();
+
+		//? Sends event to websocket so the clients will update their UI with the newly fetched data
+		io.getIO().emit('posts', {
+			action: 'create',
+			post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
+		});
 
 		return {
 			...savedPost._doc,
@@ -154,25 +185,5 @@ module.exports = {
 			createdAt: savedPost.createdAt.toISOString(),
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
-
-		// //? After saving the post, fetch the user
-		// const user = await User.findById(req.userId);
-
-		// //? Once you have the user, add this post to the user's posts on the database
-		// user.posts.push(post);
-		// await user.save();
-
-		// //? Sends event to websocket so the clients will update their UI with the newly fetched data
-		// io.getIO().emit('posts', {
-		// 	action: 'create',
-		// 	post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
-		// });
-
-		// //? After both operations are successful, return a success response to the client
-		// res.status(201).json({
-		// 	message: 'Post created successfully!',
-		// 	post: post,
-		// 	creator: { _id: user._id, name: user.name },
-		// });
 	},
 };
