@@ -62,7 +62,7 @@ This data will be sent to us by the front-end and all 3 fields are required.
 Defined mutations: "createUser" for registering a new user and "createPost"
 to store a new post in the database
 """
-    type Register {
+    type RootMutation {
         createUser(userInput: registerData): User!
         createPost(postInput: postData): Post!
     }
@@ -79,5 +79,5 @@ Definition of our queries and mutations
 """
     schema {
         query: RootQuery
-        mutation: Register
+        mutation: RootMutation
     }`);
