@@ -11,6 +11,8 @@ const graphqlResolver = require('./graphql/resolvers.js');
 //? Import all the multer parsing logic from separate file to avoid
 //? cluttering main file for no reason. This will handle image uploads
 const { multerParser } = require('./util/multer-filter.js');
+//? Import graphQL authentication module
+const auth = require('./util/is-auth.js');
 
 //? Import path node module to serve images from "/images" to the front end
 const path = require('path');
@@ -52,6 +54,9 @@ app.use((req, res, next) => {
 app.use(
 	//? To which route requests should be read as GraphQL requests
 	'/graphql',
+	//? Handles and processes every request and determine if they
+	//? come from an authenticated user or not
+	auth,
 	//? Use GraphQL middleware
 	graphqlHTTP({
 		//? Where the data schema is defined
@@ -100,7 +105,7 @@ mongoose
 	.then(() => {
 		//? Start the server
 		app.listen(restPort);
-		console.log('Connected to MongoDB! Socket.IO and server are online!');
+		console.log('Connected to MongoDB and server is online!');
 	})
 	.catch(() => {
 		console.log('Error connecting to MongoDB');

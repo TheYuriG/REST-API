@@ -6,15 +6,16 @@ const { JWTsecret } = require('./secrets/keys');
 module.exports = (req, res, next) => {
 	//? Get the authorization from the request header
 	const authorization = req.get('Authorization');
-	//? If there is no authorization (is undefined), throw an error
+	//? If there is no authorization (is undefined), set the isAuth property
+	//? in the request body as false and forward this to the subsequent middleware
 	if (!authorization) {
-		const error = new Error('Not Authenticated.');
-		error.statusCode = 401;
-		throw error;
+		req.isAuth = false;
+		return next();
 	}
 
 	//? Store the token to decode in the 'try' block
-	//! 'Bearer ' is convention we add to token strings. We remove here as it's not relevant to the token data
+	//! 'Bearer ' is convention we add to token strings.
+	//! We remove here as it's not relevant to the token data
 	const token = authorization.replace('Bearer ', '');
 
 	//? Create a soft variable to store the token after decoding with JWT
@@ -24,9 +25,11 @@ module.exports = (req, res, next) => {
 		//? Try to decode the request token, if one was sent
 		decodedToken = jwt.verify(token, JWTsecret);
 	} catch (err) {
-		//? If we fail to decode the token due to a bad or fake request, throw an error
-		err.statusCode = 500;
-		throw err;
+		//? If we fail to decode the token due to a bad or fake request, set the
+		//? isAuth property in the request body as false and forward this to the
+		//? subsequent middleware
+		req.isAuth = false;
+		return next();
 	}
 
 	//? If the token is invalid, throw an error
@@ -39,6 +42,7 @@ module.exports = (req, res, next) => {
 	//? If we decode the token successfully and the token is valid, proceed and
 	//? store the user ID in the request to be used in CRUD post operations
 	req.userId = decodedToken.userId;
+	req.isAuth = true;
 
 	//? Forward to the next middleware after successfully validating
 	next();
