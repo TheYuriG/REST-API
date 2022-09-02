@@ -34,7 +34,7 @@ which we defined previously.
 Information that is returned once a successful login attempt completes.
 """
 type AuthData {
-    token String!
+    token: String!
     userId: String!
 }
 
