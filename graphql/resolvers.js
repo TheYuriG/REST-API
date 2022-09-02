@@ -105,7 +105,7 @@ module.exports = {
 			userId: user._id.toString(),
 		};
 	},
-	createPost: async function ({ postInput: { title, content } }, req) {
+	createPost: async function ({ postInput: { title, content, imageUrl } }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
 		if (!req.isAuth) {
@@ -176,6 +176,7 @@ module.exports = {
 		return {
 			...savedPost._doc,
 			_id: savedPost._id.toString(),
+			creator: user,
 			createdAt: savedPost.createdAt.toISOString(),
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
