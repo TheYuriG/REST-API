@@ -35,7 +35,7 @@ module.exports = {
 			//? Attach all validation errors to the thrown error
 			validationErrors.data = validationErrors;
 			//? Change the status code to Unprocessable Entity
-			validationErrors.code = 422;
+			validationErrors.statusCode = 422;
 			//? and finally throw it
 			throw invalidInputError;
 		}
@@ -45,6 +45,7 @@ module.exports = {
 		//? If we found an user, throw an error
 		if (existingUser) {
 			const error = new Error('User already exists!');
+			error.statusCode = 409;
 			throw error;
 		}
 
@@ -64,53 +65,45 @@ module.exports = {
 		return { ...savedUser._doc, _id: savedUser._id.toString() };
 	},
 	authenticate: async function ({ email, password }) {
-		try {
-			//? Look up if there is an user with the provided email
-			const user = await User.findOne({ email: email });
-			//? If the network connection to MongoDB works
-			//? Check if an user was found
-			if (!user) {
-				//? If no user was found, throw an error
-				const error = new Error('An user with this email could not be found.');
-				error.statusCode = 401;
-				throw error;
-			}
-
-			//? If an user was found, we can use this user after comparing the
-			//? provided and stored passwords without making another
-			//? request to the database
-			const isEqual = await bcrypt.compare(password, user.password);
-			//? If bcrypt returns that the passwords do not match, throw an error
-			if (!isEqual) {
-				const error = new Error('Passwords do not match.');
-				error.statusCode = 401;
-				throw error;
-			}
-
-			//? If the passwords match, the IF block above gets skipped and
-			//? we authenticate the user by creating their JSON Web Token
-			const token = jwt.sign(
-				//? Data to encrypt
-				{ email: user.email, userId: user._id.toString() },
-				//? Secret string to increase security
-				//! Needs to be manually created if importing this project
-				JWTsecret,
-				//? Set expiry date. The frontend will logoff in 1h by default
-				{ expiresIn: '1h' }
-			);
-
-			//? Return the JWT created above and the user's ID
-			return {
-				token: token,
-				userId: user._id.toString(),
-			};
-		} catch (err) {
-			//? Forward the error to the express error handler
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err);
+		//? Look up if there is an user with the provided email
+		const user = await User.findOne({ email: email });
+		//? If the network connection to MongoDB works
+		//? Check if an user was found
+		if (!user) {
+			//? If no user was found, throw an error
+			const error = new Error('An user with this email could not be found.');
+			error.statusCode = 401;
+			throw error;
 		}
+
+		//? If an user was found, we can use this user after comparing the
+		//? provided and stored passwords without making another
+		//? request to the database
+		const isEqual = await bcrypt.compare(password, user.password);
+		//? If bcrypt returns that the passwords do not match, throw an error
+		if (!isEqual) {
+			const error = new Error('Passwords do not match.');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		//? If the passwords match, the IF block above gets skipped and
+		//? we authenticate the user by creating their JSON Web Token
+		const token = jwt.sign(
+			//? Data to encrypt
+			{ email: user.email, userId: user._id.toString() },
+			//? Secret string to increase security
+			//! Needs to be manually created if importing this project
+			JWTsecret,
+			//? Set expiry date. The frontend will logoff in 1h by default
+			{ expiresIn: '1h' }
+		);
+
+		//? Return the JWT created above and the user's ID
+		return {
+			token: token,
+			userId: user._id.toString(),
+		};
 	},
 	createPost: async function ({ postInput: { title, content } }, req) {
 		//? Array of validation errors
@@ -152,42 +145,34 @@ module.exports = {
 			creator: req.userId, //? We store the logged ID in the request using the 'is-auth.js' middleware
 		});
 
-		try {
-			//? Save this post in the database
-			const savedPost = await post.save();
+		//? Save this post in the database
+		const savedPost = await post.save();
 
-			return {
-				...savedPost._doc,
-				_id: savedPost._id.toString(),
-				createdAt: savedPost.createdAt.toISOString(),
-				updatedAt: savedPost.updatedAt.toISOString(),
-			};
+		return {
+			...savedPost._doc,
+			_id: savedPost._id.toString(),
+			createdAt: savedPost.createdAt.toISOString(),
+			updatedAt: savedPost.updatedAt.toISOString(),
+		};
 
-			// //? After saving the post, fetch the user
-			// const user = await User.findById(req.userId);
+		// //? After saving the post, fetch the user
+		// const user = await User.findById(req.userId);
 
-			// //? Once you have the user, add this post to the user's posts on the database
-			// user.posts.push(post);
-			// await user.save();
+		// //? Once you have the user, add this post to the user's posts on the database
+		// user.posts.push(post);
+		// await user.save();
 
-			// //? Sends event to websocket so the clients will update their UI with the newly fetched data
-			// io.getIO().emit('posts', {
-			// 	action: 'create',
-			// 	post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
-			// });
+		// //? Sends event to websocket so the clients will update their UI with the newly fetched data
+		// io.getIO().emit('posts', {
+		// 	action: 'create',
+		// 	post: { ...post._doc, creator: { _id: req.userId, name: user.name } },
+		// });
 
-			// //? After both operations are successful, return a success response to the client
-			// res.status(201).json({
-			// 	message: 'Post created successfully!',
-			// 	post: post,
-			// 	creator: { _id: user._id, name: user.name },
-			// });
-		} catch (err) {
-			//? Forward the error to the express error handler
-			if (!err.statusCode) {
-				err.statusCode = 500;
-			}
-			next(err);
-		}
+		// //? After both operations are successful, return a success response to the client
+		// res.status(201).json({
+		// 	message: 'Post created successfully!',
+		// 	post: post,
+		// 	creator: { _id: user._id, name: user.name },
+		// });
 	},
 };
