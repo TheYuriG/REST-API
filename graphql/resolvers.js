@@ -184,11 +184,11 @@ module.exports = {
 	posts: async function ({ page }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
-		// if (!req.isAuth) {
-		// 	const error = new Error('Not authenticated!');
-		// 	error.statusCode = 401;
-		// 	throw error;
-		// }
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
 
 		//? Pull the page number to work with proper pagination
 		const currentPage = page || 1;
