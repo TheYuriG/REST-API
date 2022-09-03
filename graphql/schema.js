@@ -39,6 +39,15 @@ type AuthData {
 }
 
 """
+Returns an array with the posts within the pagination limit and the total
+number of posts so the pagination can be created
+"""
+type PostData {
+    posts: [Post!]!
+    totalPosts: Int!
+}
+
+"""
 Mutation Schema to create an user in the database, the basic registering.
 This data will be sent to us by the front-end and all 3 fields are required.
 """
@@ -72,6 +81,7 @@ Login query, requesting validation of email and password
 """
 type RootQuery {
     authenticate(email: String!, password: String!): AuthData!
+    posts(page: Int): PostData!
 }
 
 """

@@ -181,4 +181,60 @@ module.exports = {
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
 	},
+	posts: async function ({ page }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		// if (!req.isAuth) {
+		// 	const error = new Error('Not authenticated!');
+		// 	error.statusCode = 401;
+		// 	throw error;
+		// }
+
+		//? Pull the page number to work with proper pagination
+		const currentPage = page || 1;
+		//? Sets the limit of items to be displayed per page
+		const postLimitPerPage = 10;
+
+		try {
+			//? Query the database for the number of items total
+			const totalPosts = await Post.find().countDocuments();
+
+			//? Access the database to pull all posts
+			const posts = await Post.find()
+				//? Add information about the post creator, so we can have their name
+				.populate('creator')
+				//? Sort posts by newest to oldest
+				.sort({ createdAt: -1 })
+				//? Pull only posts within the range of the page given
+				.skip((currentPage - 1) * postLimitPerPage)
+				//? Pull only as many posts as limited to single page
+				.limit(postLimitPerPage);
+
+			//? Return the relevant data to GraphQL
+			return {
+				//? Return all posts within the range, while modifying some data
+				//? that GraphQL is unable to understand
+				posts: posts.map((singlePost) => {
+					return {
+						//? Return all other information not described below
+						...singlePost._doc,
+						//? GraphQL can't understand what is a Mongo ID, so convert
+						//? that to a string before returning through GraphQL
+						_id: singlePost._id.toString(),
+						//? GraphQL can't understand a javascript time object, so convert both
+						//? the "createdAt" and "updatedAt" fields to an ISO String
+						createdAt: singlePost.createdAt.toISOString(),
+						updatedAt: singlePost.updatedAt.toISOString(),
+					};
+				}),
+				totalPosts: totalPosts,
+			};
+		} catch (err) {
+			//? Forward the error to the express error handler
+			if (!err.statusCode) {
+				err.statusCode = 500;
+			}
+			next(err);
+		}
+	},
 };
