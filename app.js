@@ -11,6 +11,8 @@ const graphqlResolver = require('./graphql/resolvers.js');
 //? Import all the multer parsing logic from separate file to avoid
 //? cluttering main file for no reason. This will handle image uploads
 const { multerParser } = require('./util/multer-filter.js');
+//? Import the file deletion helper function
+const { deleteImage } = require('./util/delete-image.js');
 //? Import graphQL authentication module
 const auth = require('./util/is-auth.js');
 
@@ -31,9 +33,6 @@ app.use(parser.json());
 //? Parse and store files using multer
 app.use(multerParser);
 
-//? Serves images to the frontend
-app.use('/images', express.static(path.join(__dirname, 'images')));
-
 //? Handles CORS issues
 app.use((req, res, next) => {
 	//? Configure the server to accept requests from any website
@@ -49,6 +48,45 @@ app.use((req, res, next) => {
 	}
 	next();
 });
+
+//? REST endpoint to deal with image uploads, since GraphQL can't
+app.put(
+	//? Endpoint path
+	'/uploads',
+	//? Handles and processes every request and determine if they
+	//? come from an authenticated user or not
+	auth,
+	(req, res, next) => {
+		//? If the user is trying to send a PUT request without being logged
+		//? in, return them an error
+		if (!req.isAuth) {
+			throw new Error('Not authenticated!');
+		}
+		//? Check if this request has an image in it
+		if (!req.file) {
+			//? If no image, return a positive response stating no image was
+			//? uploaded. This covers both failed upload attempts which will
+			//? give a post creation error and also post editing where there
+			//? is no need to change the already used image
+			return res.status(200).json({ message: 'No file provided!' });
+		}
+
+		//? If we are editing a post and a new image is being sent, we need to
+		//? delete the old image from the storage
+		if (req.body.oldPath) {
+			deleteImage(req.body.oldPath);
+		}
+
+		//? After completing these checks and possible operations, return a
+		//? success message with the path route for the uploaded image
+		return res
+			.status(201)
+			.json({ message: 'File stored successfully', filePath: req.file.path });
+	}
+);
+
+//? Serves images to the frontend
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 //? Handling all GraphQL requests in one place
 app.use(
