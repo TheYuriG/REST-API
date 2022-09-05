@@ -64,6 +64,7 @@ module.exports = {
 		//? Return to GraphQL the data it needs to separate and send to the client
 		return { ...savedUser._doc, _id: savedUser._id.toString() };
 	},
+	//? Function to login an existing user at "/"
 	authenticate: async function ({ email, password }) {
 		//? Look up if there is an user with the provided email
 		const user = await User.findOne({ email: email });
@@ -105,6 +106,7 @@ module.exports = {
 			userId: user._id.toString(),
 		};
 	},
+	//? Function to create a new post in the database. Requires authentication
 	createPost: async function ({ postInput: { title, content, imageUrl } }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
@@ -181,6 +183,7 @@ module.exports = {
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
 	},
+	//? Function to fetch posts in the database. Requires authentication
 	posts: async function ({ page }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
