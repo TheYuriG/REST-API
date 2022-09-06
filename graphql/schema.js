@@ -208,6 +208,11 @@ type RootQuery {
     and the total number of posts so the feed can be properly paginated.
     """
     posts(page: Int): PostData!
+    """
+    Queries for information of a single post to view in full detail and
+    finally render the imageUrl.
+    """
+    singlePost(ID: String!): Post!
 }
 
 """

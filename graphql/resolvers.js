@@ -240,4 +240,38 @@ module.exports = {
 			next(err);
 		}
 	},
+	//? Pulls additional data of a single post when clicking "View" on the feed
+	//? Requires authentication
+	singlePost: async function ({ ID }) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		//? Look up the database if there is an post with this same ID extracted
+		const post = await Post.findById(ID).populate('creator');
+		//? If nothing was found, throw an error for the following catch block
+		if (!post) {
+			const error = new Error('Could not find post');
+			error.statusCode = 404;
+			throw error;
+		}
+
+		console.log({
+			...post._doc,
+			_id: post._doc._id.toString(),
+			createdAt: post._doc.createdAt.toISOString(),
+			updatedAt: post._doc.updatedAt.toISOString(),
+		});
+		//? If the post was found, return that data through GraphQL
+		return {
+			...post._doc,
+			_id: post._doc._id.toString(),
+			createdAt: post._doc.createdAt.toISOString(),
+			updatedAt: post._doc.updatedAt.toISOString(),
+		};
+	},
 };
