@@ -242,7 +242,7 @@ module.exports = {
 	},
 	//? Pulls additional data of a single post when clicking "View" on the feed
 	//? Requires authentication
-	singlePost: async function ({ ID }) {
+	singlePost: async function ({ ID }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
 		if (!req.isAuth) {
