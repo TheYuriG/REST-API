@@ -322,7 +322,7 @@ module.exports = {
 		post.title = title;
 		post.content = content;
 		//? If a new image was provided, update the database post with it
-		if (imageUrl !== 'oldImage') {
+		if (imageUrl !== 'undefined') {
 			post.imageUrl = imageUrl;
 		}
 
