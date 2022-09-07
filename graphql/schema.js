@@ -7,83 +7,83 @@ module.exports = buildSchema(`
 Posts Schema, same as MongoDB except GraphQL doesn't understand timestamps or ID,
 so instead we convert and send them as Strings.
 """
-    type Post {
-        """
-        The ID of this post. It needs to be a string, rather than a MongoDB ID Object.
-        """
-        _id: ID!
-        """
-        Name of the post, this is the header.
-        """
-        title: String!
-        """
-        Description of the post, extra information that shouldn't be in the title.
-        """
-        content: String!
-        """
-        URL for the image on the server. This is handled by the backend after the
-        user uploads the image on the frontend.
-        """
-        imageUrl: String!
-        """
-        Information about the account that created this post. This inherits the User
-        Schema and all of its inner data properties.
-        """
-        creator: User!
-        """
-        A timestamp of when this post was created on the database, but converted to
-        ISO string before being passed to GraphQL since it wouldn't understand a
-        Date Javascript object
-        """
-        createdAt: String!
-        """
-        A timestamp of when this post was last updated on the database, but converted
-        to ISO string before being passed to GraphQL since it wouldn't understand a
-        Date Javascript object
-        """
-        updatedAt: String!
-    }
+type Post {
+    """
+    The ID of this post. It needs to be a string, rather than a MongoDB ID Object.
+    """
+    _id: ID!
+    """
+    Name of the post, this is the header.
+    """
+    title: String!
+    """
+    Description of the post, extra information that shouldn't be in the title.
+    """
+    content: String!
+    """
+    URL for the image on the server. This is handled by the backend after the
+    user uploads the image on the frontend.
+    """
+    imageUrl: String!
+    """
+    Information about the account that created this post. This inherits the User
+    Schema and all of its inner data properties.
+    """
+    creator: User!
+    """
+    A timestamp of when this post was created on the database, but converted to
+    ISO string before being passed to GraphQL since it wouldn't understand a
+    Date Javascript object
+    """
+    createdAt: String!
+    """
+    A timestamp of when this post was last updated on the database, but converted
+    to ISO string before being passed to GraphQL since it wouldn't understand a
+    Date Javascript object
+    """
+    updatedAt: String!
+}
 
 """
 Users Schema, same as mongoose. 'posts' requires an array of Post datatype,
 which we defined previously.
 """
-    type User {
-        """
-        ID of this user's database entry on MongoDB. GraphQL can't understand
-        the ID Object that MongoDB returns, so we need to first convert it to
-        a string before sending to GraphQL.
-        """
-        _id: ID!
-        """
-        Name of the User being returned. This will be displayed on posts created
-        by this user.
-        """
-        name: String!
-        """
-        Email of the user. The information used to log in their account.
-        """
-        email: String!
-        """
-        Password of this user. This gets encrypted before being stored on the
-        database, in case a security breach happens, so the user accounts aren't
-        compromised. To complete a login, the attempt password is encrypted and
-        then compared against the database password to validate the login.
-        """
-        password: String
-        """
-        The status of the user. By default, the initial status upon creating an
-        account is "I am new!", but this can be changed at any time after
-        being logged in and using the "Your status" box.
-        """
-        status: String!
-        """
-        Array of posts created by this user. This is used to define if an user
-        can delete or edit a specific post, by checking if said post ID is
-        stored in their user database entry.
-        """
-        posts: [Post!]!
-    }
+type User {
+    """
+    ID of this user's database entry on MongoDB. GraphQL can't understand
+    the ID Object that MongoDB returns, so we need to first convert it to
+    a string before sending to GraphQL.
+    """
+    _id: ID!
+    """
+    Name of the User being returned. This will be displayed on posts created
+    by this user.
+    """
+    name: String!
+    """
+    Email of the user. The information used to log in their account.
+    """
+    email: String!
+    """
+    Password of this user. This gets encrypted before being stored on the
+    database, in case a security breach happens, so the user accounts aren't
+    compromised. To complete a login, the attempt password is encrypted and
+    then compared against the database password to validate the login.
+    """
+    password: String
+    """
+    The status of the user. By default, the initial status upon creating an
+    account is "I am new!", but this can be changed at any time after
+    being logged in and using the "Your status" box.
+    """
+    status: String!
+    """
+    Array of posts created by this user. This is used to define if an user
+    can delete or edit a specific post, by checking if said post ID is
+    stored in their user database entry.
+    """
+    posts: [Post!]!
+}
 
 """
 Information that is returned once a successful login attempt completes.
@@ -126,69 +126,69 @@ type PostData {
 Mutation Schema to create an user in the database, the basic registering.
 This data will be sent to us by the front-end and all 3 fields are required.
 """
-    input registerData {
-        """
-        Email address used to create the user account. This is both validated on
-        the frontend and the backend, before being accepted. This is never displayed
-        on the frontend and is only used again in future login attempts.
-        """
-        email: String!
-        """
-        Name of the user. This is displayed on every post this user creates.
-        """
-        name: String!
-        """
-        The password of this user. Before being saved on the database, this
-        gets encrypted so the user account doesn't get compromised in case of
-        database breach access. At a new login attempt, the sent password is
-        encrypted and compared with this encrypted stored password to check
-        for a valid match.
-        """
-        password: String!
-    }
+input registerData {
+    """
+    Email address used to create the user account. This is both validated on
+    the frontend and the backend, before being accepted. This is never displayed
+    on the frontend and is only used again in future login attempts.
+    """
+    email: String!
+    """
+    Name of the user. This is displayed on every post this user creates.
+    """
+    name: String!
+    """
+    The password of this user. Before being saved on the database, this
+    gets encrypted so the user account doesn't get compromised in case of
+    database breach access. At a new login attempt, the sent password is
+    encrypted and compared with this encrypted stored password to check
+    for a valid match.
+    """
+    password: String!
+}
 
 """
 Mutation Schema for creating a new post.
 This data will be sent to us by the front-end and all 3 fields are required.
 """
-    input postData {
-        """
-        Title of the post that will display on the feed.
-        """
-        title: String!
-        """
-        Description of the post. This is only displayed when the user clicks
-        "View" and goes into single page mode. Does not display on the feed.
-        """
-        content: String!
-        """
-        Image within the post. This is only displayed when the user clicks
-        "View" and goes into single page mode. Does not display on the feed.
-        """
-        imageUrl: String!
+input postData {
+    """
+    Title of the post that will display on the feed.
+    """
+    title: String!
+    """
+    Description of the post. This is only displayed when the user clicks
+    "View" and goes into single page mode. Does not display on the feed.
+    """
+    content: String!
+    """
+    Image within the post. This is only displayed when the user clicks
+    "View" and goes into single page mode. Does not display on the feed.
+    """
+    imageUrl: String!
     }
 
 """
 All defined mutations: "createUser" for registering a new user and "createPost"
 to store a new post in the database.
 """
-    type RootMutation {
-        """
-        Attempts to create an user in the database. First check if there is
-        already an user in the database with the same email. If not, encrypt
-        the password and then store the email, encrypted password and the name
-        in the database for future login attempts.
-        """
-        createUser(userInput: registerData): User!
-        """
-        Creates a post with the provided title, content and image. Image gets
-        uploaded by a REST API endpoint (doesn't affect UX) and then the link
-        to said image is sourced here to later be provided back when trying to
-        load and render those images. GraphQL is unable to deal with any data
-        other than JSON, reason why we use a REST endpoint for image uploads.
-        """
-        createPost(postInput: postData): Post!
-    }
+type RootMutation {
+    """
+    Attempts to create an user in the database. First check if there is
+    already an user in the database with the same email. If not, encrypt
+    the password and then store the email, encrypted password and the name
+    in the database for future login attempts.
+    """
+    createUser(userInput: registerData): User!
+    """
+    Creates a post with the provided title, content and image. Image gets
+    uploaded by a REST API endpoint (doesn't affect UX) and then the link
+    to said image is sourced here to later be provided back when trying to
+    load and render those images. GraphQL is unable to deal with any data
+    other than JSON, reason why we use a REST endpoint for image uploads.
+    """
+    createPost(postInput: postData!): Post!
+}
 
 """
 All database queries: "authenticate" will look up if the provided email and
@@ -218,7 +218,7 @@ type RootQuery {
 """
 Definition of where the queries and mutations are organized.
 """
-    schema {
-        query: RootQuery
-        mutation: RootMutation
-    }`);
+schema {
+    query: RootQuery
+    mutation: RootMutation
+}`);
