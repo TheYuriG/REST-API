@@ -81,7 +81,10 @@ app.put(
 		//? success message with the path route for the uploaded image
 		return res
 			.status(201)
-			.json({ message: 'File stored successfully', filePath: req.file.path });
+			.json({
+				message: 'File stored successfully',
+				filePath: req.file.path.replace('\\', '/'),
+			});
 	}
 );
 
