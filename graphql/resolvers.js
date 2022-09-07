@@ -9,6 +9,8 @@ const Post = require('../models/post.js');
 
 //? Import the JWT secret string
 const { JWTsecret } = require('../util/secrets/keys');
+//? Import the file deletion helper function
+const { deleteImage } = require('../util/delete-image.js');
 
 //? Export functions to be used by GraphQL resolver
 module.exports = {
@@ -336,5 +338,48 @@ module.exports = {
 			createdAt: savedPost.createdAt.toISOString(),
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
+	},
+	deletePost: async function ({ ID }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		//? Look up if this post actually exists
+		const post = await Post.findById(ID);
+
+		//? If no post was found, throw error
+		if (!post) {
+			const error = new Error('Could not find post to delete');
+			error.statusCode = 404;
+			throw error;
+		}
+
+		//? Check if the person trying to delete the post is the
+		//? same person who created it and fail the request if isn't
+		if (post?.creator.toString() !== req.userId) {
+			const error = new Error('Not authorized!');
+			error.statusCode = 403;
+			throw error;
+		}
+
+		//? Searches and destroys this post on the database
+		await Post.findByIdAndDelete(ID);
+		//? Once the post was destroyed, we need to remove this post reference
+		//? from the user's posts. First we fetch the user
+		const user = await User.findById(req.userId);
+		//? Then we remove the post reference from the 'posts' array inside
+		//? the user entry on the database
+		user.posts.pull(ID);
+		//? then we save this user without the post reference
+		await user.save();
+
+		//? Finally delete the image from the server storage
+		deleteImage(post.imageUrl);
+
+		return true;
 	},
 };

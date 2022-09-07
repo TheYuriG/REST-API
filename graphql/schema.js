@@ -209,6 +209,12 @@ type RootMutation {
     """
     createPost(postInput: postData!): Post!
     """
+    Deletes a post created by the same user making the request, using its
+    post ID identifier. If the post was created by another user than the
+    one making the request, the post won't be deleted. If a post gets deleted,
+    its corresponding image also gets deleted from the backend storage.
+    """
+    deletePost(ID: String!): Boolean!
     """
     Updates the data of a post. Images could be replaced or not,
     depending if the user chose to upload a new image. If a new image is
