@@ -104,25 +104,6 @@ type AuthData {
 }
 
 """
-Returns an array with the posts within the pagination limit and the total
-number of posts so the pagination can be created
-"""
-type PostData {
-    """
-    Array of posts to be rendered in the frontend. The length of this array
-    is defined by the variable "postLimitPerPage" which is currently hard-coded
-    but could be soft created in the future, if a dropdown menu is added to allow
-    users to select how many posts per page should be displayed.
-    """
-    posts: [Post!]!
-    """
-    The total count of posts stored in the database, returned to the frontend
-    so there can be displayed some pagination.
-    """
-    totalPosts: Int!
-}
-
-"""
 Mutation Schema to create an user in the database, the basic registering.
 This data will be sent to us by the front-end and all 3 fields are required.
 """
@@ -169,8 +150,47 @@ input postData {
     }
 
 """
-All defined mutations: "createUser" for registering a new user and "createPost"
-to store a new post in the database.
+Mutation schema to update a post created by the same user as the post.
+"""
+input updatedPostData {
+    """
+    ID of this post so we can look up if this post exists and can be updated.
+    """
+    ID: String!
+    """
+    Title of the post that will display on the feed.
+    """
+    title: String!
+    """
+    Description of the post. This is only displayed when the user clicks
+    "View" and goes into single page mode. Does not display on the feed.
+    """
+    content: String!
+    """
+    Image within the post. This is only displayed when the user clicks
+    "View" and goes into single page mode. Does not display on the feed.
+    """
+    imageUrl: String!
+}
+
+"""
+Returns an array with the posts within the pagination limit and the total
+number of posts so the pagination can be created
+"""
+type PostData {
+    """
+    Array of posts to be rendered in the frontend. The length of this array
+    is defined by the variable "postLimitPerPage" which is currently hard-coded
+    but could be soft created in the future, if a dropdown menu is added to allow
+    users to select how many posts per page should be displayed.
+    """
+    posts: [Post!]!
+    """
+    The total count of posts stored in the database, returned to the frontend
+    so there can be displayed some pagination.
+    """
+    totalPosts: Int!
+}
 """
 type RootMutation {
     """
@@ -188,6 +208,13 @@ type RootMutation {
     other than JSON, reason why we use a REST endpoint for image uploads.
     """
     createPost(postInput: postData!): Post!
+    """
+    """
+    Updates the data of a post. Images could be replaced or not,
+    depending if the user chose to upload a new image. If a new image is
+    provided, the previous image gets deleted.
+    """
+    updatePost(renewPost: updatedPostData!): Post!
 }
 
 """

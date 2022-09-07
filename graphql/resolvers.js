@@ -133,19 +133,10 @@ module.exports = {
 			//? Attach all validation errors to the thrown error
 			validationErrors.data = validationErrors;
 			//? Change the status code to Unprocessable Entity
-			validationErrors.code = 422;
+			validationErrors.statusCode = 422;
 			//? and finally throw it
 			throw invalidInputError;
 		}
-
-		// //? Check if a proper image was uploaded
-		// if (!req.file) {
-		// 	//? Throw an error if no proper image was sent
-		// 	const error = new Error('No image provided!');
-		// 	error.statusCode = 422;
-		// 	throw error;
-		// }
-		// const imageUrl = req.file.path.replace('\\', '/');
 
 		// //? After validating the post information, fetch the user
 		const user = await User.findById(req.userId);
@@ -267,6 +258,83 @@ module.exports = {
 			_id: post._doc._id.toString(),
 			createdAt: post._doc.createdAt.toISOString(),
 			updatedAt: post._doc.updatedAt.toISOString(),
+		};
+	},
+	updatePost: async function ({ renewPost: { title, content, imageUrl, ID } }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		//? Array of validation errors
+		const validationErrors = [];
+		//? Validate post data before attempting any database access
+		if (validator.isEmpty(content) || !validator.isLength(content, { min: 5 })) {
+			validationErrors.push({ message: 'Please provide a valid description.' });
+		}
+		if (validator.isEmpty(title) || !validator.isLength(title, { min: 5 })) {
+			validationErrors.push({ message: 'Please provide a valid title.' });
+		}
+
+		//? If we have any validation errors, throw the error
+		if (validationErrors.length > 0) {
+			//? Name the error
+			const invalidInputError = new Error('Invalid input.');
+			//? Attach all validation errors to the thrown error
+			validationErrors.data = validationErrors;
+			//? Change the status code to Unprocessable Entity
+			validationErrors.statusCode = 422;
+			//? and finally throw it
+			throw invalidInputError;
+		}
+
+		//? Basic check if there an image exists
+		if (!imageUrl) {
+			const error = new Error('No file selected.');
+			error.statusCode = 422;
+			throw error;
+		}
+
+		//? Look up on the database for the post being searched
+		const post = await Post.findById(ID).populate('creator');
+		//! This will not find the post if the post was deleted between
+		//! the page load and the "Edit" click
+		if (!post) {
+			const error = new Error("Post wasn't found on the database to be updated.");
+			error.statusCode = 404;
+			throw error;
+		}
+
+		//? Check if the person trying to edit the post is the
+		//? same person who created it and fail the request if isn't
+		if (post.creator._id.toString() !== req.userId) {
+			const error = new Error(
+				'Forbidden request! You are not the original creator of this post!'
+			);
+			error.statusCode = 403;
+			throw error;
+		}
+
+		//? Update the database post with the newly provided data
+		post.title = title;
+		post.content = content;
+		//? If a new image was provided, update the database post with it
+		if (imageUrl !== 'oldImage') {
+			post.imageUrl = imageUrl;
+		}
+
+		//? Save the updated post on the database again
+		const savedPost = await post.save();
+
+		//? Return a success message to the client
+		return {
+			...savedPost._doc,
+			_id: savedPost._id.toString(),
+			createdAt: savedPost.createdAt.toISOString(),
+			updatedAt: savedPost.updatedAt.toISOString(),
 		};
 	},
 };
