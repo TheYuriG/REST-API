@@ -191,6 +191,12 @@ type PostData {
     """
     totalPosts: Int!
 }
+
+"""
+All defined mutations: "createUser" for registering a new user, "createPost"
+to store a new post in the database, "deletePost" to remove a post from
+the database, "updatePost" to replace one or more parts of a post created and
+"updateStatus" to replace the user status string.
 """
 type RootMutation {
     """
@@ -221,6 +227,10 @@ type RootMutation {
     provided, the previous image gets deleted.
     """
     updatePost(renewPost: updatedPostData!): Post!
+    """
+    Update the status update string displayed on the feed with a new string.
+    """
+    updateStatus(newStatus: String!): Boolean!
 }
 
 """
@@ -246,6 +256,10 @@ type RootQuery {
     finally render the imageUrl.
     """
     singlePost(ID: String!): Post!
+    """
+    Get status update for the current logged in user.
+    """
+    userStatus(userId: String): String!
 }
 
 """

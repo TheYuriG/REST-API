@@ -262,6 +262,8 @@ module.exports = {
 			updatedAt: post._doc.updatedAt.toISOString(),
 		};
 	},
+	//? Updates a post with new data. If no new image was provided, keep the
+	//? previously sent image. If a new image was sent, delete the old image
 	updatePost: async function ({ renewPost: { title, content, imageUrl, ID } }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
@@ -339,6 +341,7 @@ module.exports = {
 			updatedAt: savedPost.updatedAt.toISOString(),
 		};
 	},
+	//? Delete a post by its ID. The post creator must match the request user
 	deletePost: async function ({ ID }, req) {
 		//? Check if the user is authenticated by verifying if a proper token
 		//? string was passed with the request and processed by "./util/is-auth.js"
@@ -380,6 +383,26 @@ module.exports = {
 		//? Finally delete the image from the server storage
 		deleteImage(post.imageUrl);
 
+		return true;
+	},
+	//? Pull the status of the currently logged in user
+	userStatus: async function ({ userId }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		const user = await User.findById(req.userId);
+		return user.status;
+	},
+	updateStatus: async function ({ newStatus }, req) {
+		const user = await User.findById(req.userId);
+		const updatedUser = user;
+		updatedUser.status = newStatus;
+		await updatedUser.save();
 		return true;
 	},
 };
