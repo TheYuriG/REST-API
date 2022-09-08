@@ -395,14 +395,46 @@ module.exports = {
 			throw error;
 		}
 
+		//? Check if the ID provided actually belongs to an user
 		const user = await User.findById(req.userId);
+
+		//? If we could not find an user, throw an error
+		if (!user) {
+			const error = new Error('User not found!');
+			error.statusCode = 404;
+			throw error;
+		}
+
+		//? If we found an user, retrieve their status and return
+		//? the status to the frontend
 		return user.status;
 	},
+	//? Update the status of the currently logged in user
 	updateStatus: async function ({ newStatus }, req) {
+		//? Check if the user is authenticated by verifying if a proper token
+		//? string was passed with the request and processed by "./util/is-auth.js"
+		if (!req.isAuth) {
+			const error = new Error('Not authenticated!');
+			error.statusCode = 401;
+			throw error;
+		}
+
+		//? Check if the ID provided actually belongs to an user
 		const user = await User.findById(req.userId);
+		//? If we could not find an user, throw an error
+		if (!user) {
+			const error = new Error('User not found!');
+			error.statusCode = 404;
+			throw error;
+		}
+
+		//? Update the status of the retrieved user and save it
 		const updatedUser = user;
 		updatedUser.status = newStatus;
 		await updatedUser.save();
+
+		//? Return a 'true' boolean to signal the frontend that
+		//? everything worked out just fine
 		return true;
 	},
 };
