@@ -1,39 +1,40 @@
 {
-  "name": "rest-api",
-  "description": "Example of a REST API for a blog",
-  "version": "1.0.0",
-  "main": "app.js",
-  "scripts": {
-    "start": "nodemon app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/TheYuriG/REST-API.git"
-  },
-  "keywords": [
-    "rest",
-    "api"
-  ],
-  "author": "TheYuriG",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/TheYuriG/REST-API/issues"
-  },
-  "homepage": "https://github.com/TheYuriG/REST-API#readme",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.0",
-    "express": "^4.18.1",
-    "express-validator": "^6.14.2",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.5.0",
-    "multer": "^1.4.5-lts.1",
-    "socket.io": "^4.5.1",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "chai": "^4.3.6",
-    "mocha": "^10.0.0",
-    "nodemon": "^2.0.19"
-  }
+	"name": "rest-api",
+	"description": "Example of a REST API for a blog",
+	"version": "1.0.0",
+	"main": "app.js",
+	"scripts": {
+		"test": "mocha",
+		"start": "nodemon app.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/TheYuriG/REST-API.git"
+	},
+	"keywords": [
+		"rest",
+		"api"
+	],
+	"author": "TheYuriG",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/TheYuriG/REST-API/issues"
+	},
+	"homepage": "https://github.com/TheYuriG/REST-API#readme",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"body-parser": "^1.20.0",
+		"express": "^4.18.1",
+		"express-validator": "^6.14.2",
+		"jsonwebtoken": "^8.5.1",
+		"mongoose": "^6.5.0",
+		"multer": "^1.4.5-lts.1",
+		"socket.io": "^4.5.1",
+		"uuid": "^8.3.2"
+	},
+	"devDependencies": {
+		"chai": "^4.3.6",
+		"mocha": "^10.0.0",
+		"nodemon": "^2.0.19"
+	}
 }
